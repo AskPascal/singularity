@@ -7,7 +7,10 @@ From: ubuntu:latest
     exec echo "Hello Monsoir Meatball" "$@"
 
 %post
- 
+
    echo "Here we are installing software and other dependencies for the container!"
    apt-get update
-   apt-get install -y git 
+   apt-get install -y git
+   mkdir /sw
+   mkdir /pica
+   mkdir /proj
