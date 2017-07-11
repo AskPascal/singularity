@@ -16,4 +16,4 @@ From: ubuntu:latest
    mkdir /pica
    mkdir /proj
    export LC_ALL=C
-   pip3 install snakemake
+   pip3 install snakemake #
