@@ -3,16 +3,42 @@ OSVersion: bionic
 MirrorURL: http://archive.ubuntu.com/ubuntu/
 Include: bash
 
+%environment
+  SINGULARITY_SHELL=/bin/bash
+
 %post
+  apt-get install -y software-properties-common
+
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+  add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
+
   sed -i 's/main/main restricted universe/g' /etc/apt/sources.list
   apt-get update
 
   # Install R, Python, misc. utilities
-  apt-get install -y python3-pip
+  apt-get install -y python3-pip python3-pandas wget unzip r-base=3.5.1-1bionic libssl-dev libgit2-dev libcurl4-gnutls-dev
   apt-get clean
   pip3 install snakemake==5.3.0
   echo -n 'export SNAKEVER=' >> $SINGULARITY_ENVIRONMENT
   snakemake --version >> $SINGULARITY_ENVIRONMENT
+
+  mkdir -p build
+  cd build
+
+  #plink1.9
+  wget https://www.cog-genomics.org/static/bin/plink180913/plink_linux_x86_64.zip
+  unzip plink_linux_x86_64.zip
+  cp plink /usr/local/bin/
+ 
+  #Skat
+  R --slave -e 'install.packages("devtools", repos="https://cloud.r-project.org/")'
+  R --slave -e 'devtools::install_version("SKAT", version="1.3.2.1")'
+
+  useradd slurm
+
+  # clean up
+  cd ..
+  rm -rf build
 
 %runscript
     echo "Snakemke inside Singularity"

@@ -1,0 +1,39 @@
+BootStrap: debootstrap
+OSVersion: bionic
+MirrorURL: http://archive.ubuntu.com/ubuntu/
+Include: bash
+
+%post
+  sed -i 's/main/main restricted universe/g' /etc/apt/sources.list
+  apt-get update
+
+  # Install R, Python, misc. utilities
+  apt-get install -y python3-pip git automake libtool squashfs-tools python libarchive-dev
+  apt-get clean
+  pip3 install snakemake==5.3.0
+  echo -n 'export SNAKEVER=' >> $SINGULARITY_ENVIRONMENT
+  snakemake --version >> $SINGULARITY_ENVIRONMENT
+  
+  # Need singularity to be able to run other containers from within snakemake
+  mkdir build
+  cd build
+  git clone https://github.com/sylabs/singularity.git
+  cd singularity
+  git fetch --all
+  git checkout 2.5.0
+  ./autogen.sh
+  ./configure --prefix=/usr/local
+  make
+  make install
+
+  #clean up
+  cd ..
+  rm -rf build
+  apt-get purge -y git automake libtool python libarchive-dev
+  apt-get autoremove -y
+  apt-get clean
+
+%runscript
+    echo "Snakemke inside Singularity"
+    echo "Snakemake version: $SNAKEVER"
+    exec snakemake "$@"
