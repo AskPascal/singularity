@@ -1,0 +1,8 @@
+Bootstrap: docker
+From: broadinstitute/gatk:4.1.7.0
+
+%environment
+    export HOME=.
+
+%runscript
+    exec /gatk/gatk "$@"
