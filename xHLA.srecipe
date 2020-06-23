@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: humanlongevity/hla:0.0.0
+
+##############################
+# main
+##############################
+
+%post
+    apt update
+    apt install -y bc
+
+%runscript
+    exec "python" "/opt/bin/run.py" "$@"
+
+##############################
+# foo
+##############################
+
+%apprun get-reads-alt-unmap
+    exec "bash" "/opt/bin/get-reads-alt-unmap.sh" "$@"
